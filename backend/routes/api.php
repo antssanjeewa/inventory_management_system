@@ -1,16 +1,20 @@
 <?php
 
-use App\Http\Controllers\API\V1\AuthController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\API\PlaceAPIController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\AuthAPIController;
+use App\Http\Controllers\API\CupboardAPIController;
 
 // auth
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthAPIController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout', [AuthAPIController::class, 'logout']);
 
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+
+    // Route::post('/users', [UserController::class, 'store'])->middleware('role:admin');
+
+
+    Route::apiResource('cupboards', CupboardAPIController::class);
+    Route::apiResource('places', PlaceAPIController::class);
 });
