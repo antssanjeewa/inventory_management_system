@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Models\InventoryItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\StoreInventoryItemRequest;
 use App\Http\Requests\API\UpdateInventoryItemRequest;
@@ -14,9 +15,28 @@ class InventoryItemAPIController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $items = InventoryItem::with('place')->paginate();
+        $query = InventoryItem::query()->with('place');
+
+        // Optional filtering
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('item_name', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('stored_place_id')) {
+            $query->where('stored_place_id', $request->stored_place_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $items = $query->latest()->paginate();
         return response()->apiSuccessPaginated(InventoryItemResource::collection($items));
     }
 
@@ -25,9 +45,15 @@ class InventoryItemAPIController extends Controller
      */
     public function store(StoreInventoryItemRequest $request)
     {
-        $inventoryItem = InventoryItem::create($request->validated());
+        $data = $request->validated();
 
-        return response()->apiSuccess($inventoryItem, 'Inventory item created successfully', 201);
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('inventory', 'public');
+        }
+
+        $inventoryItem = InventoryItem::create($data);
+
+        return response()->apiSuccess(new InventoryItemResource($inventoryItem), 'Inventory item created successfully', 201);
     }
 
     /**
@@ -36,7 +62,7 @@ class InventoryItemAPIController extends Controller
     public function show(InventoryItem $inventoryItem)
     {
         $inventoryItem->load('place');
-        return response()->apiSuccess($inventoryItem);
+        return response()->apiSuccess(new InventoryItemResource($inventoryItem));
     }
 
     /**
@@ -44,9 +70,18 @@ class InventoryItemAPIController extends Controller
      */
     public function update(UpdateInventoryItemRequest $request, InventoryItem $inventoryItem)
     {
-        $inventoryItem->update($request->validated());
+        $data = $request->validated();
 
-        return response()->apiSuccess($inventoryItem, 'Inventory item updated successfully');
+        if ($request->hasFile('image')) {
+            if ($inventoryItem->image) {
+                Storage::disk('public')->delete($inventoryItem->image);
+            }
+            $data['image'] = $request->file('image')->store('inventory', 'public');
+        }
+
+        $inventoryItem->update($data);
+
+        return response()->apiSuccess(new InventoryItemResource($inventoryItem), 'Inventory item updated successfully');
     }
 
     /**

@@ -14,6 +14,19 @@ class InventoryItemResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'item_name' => $this->item_name,
+            'code' => $this->code,
+            'quantity' => $this->quantity,
+            'serial_number' => $this->serial_number,
+            'image' => $this->image ? asset('storage/' . $this->image) : null,
+            'description' => $this->description,
+            'place_id' => $this->place_id,
+            'status' => $this->status,
+            'place' => new PlaceResource($this->whenLoaded('place')),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
     }
 }

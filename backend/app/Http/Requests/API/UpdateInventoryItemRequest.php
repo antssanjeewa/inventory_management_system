@@ -21,10 +21,10 @@ class UpdateInventoryItemRequest extends FormRequest
             'code' => 'sometimes|required|string|max:255|unique:inventory_items,code,' . $this->inventory_item->id,
             'quantity' => 'sometimes|required|integer|min:0',
             'serial_number' => 'nullable|string|max:255',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|max:5120',
             'description' => 'nullable|string',
-            'stored_place_id' => 'sometimes|required|exists:places,id',
-            'status' => 'sometimes|required|in:' . ItemStatus::values(),
+            'place_id' => 'sometimes|required|exists:places,id',
+            'status' => 'sometimes|required|in:' . implode(',', ItemStatus::values()),
         ];
     }
 }

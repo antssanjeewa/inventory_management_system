@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreInventoryItemRequest extends FormRequest
 {
-    
+
     public function authorize(): bool
     {
         return true;
@@ -20,10 +20,10 @@ class StoreInventoryItemRequest extends FormRequest
             'code' => 'required|string|max:255|unique:inventory_items',
             'quantity' => 'required|integer|min:0',
             'serial_number' => 'nullable|string|max:255',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|max:5120',
             'description' => 'nullable|string',
-            'stored_place_id' => 'required|exists:places,id',
-            'status' => 'required|in:' . ItemStatus::values(),
+            'place_id' => 'required|exists:places,id',
+            'status' => 'required|in:' . implode(',', ItemStatus::values()),
         ];
     }
 }

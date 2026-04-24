@@ -9,18 +9,28 @@ const menuItems = [
   { name: 'Storage', icon: 'inventory_2', path: '/storage' },
   { name: 'Inventory', icon: 'package_2', path: '/inventory' },
   { name: 'Borrowing', icon: 'sync_alt', path: '/borrowing' },
-  { name: 'Audit Logs', icon: 'history_edu', path: '/audit-logs' },
-  { name: 'User Management', icon: 'manage_accounts', path: '/users' },
+  { name: 'Audit Logs', icon: 'history_edu', path: '/audit-logs', adminOnly: true },
+  { name: 'User Management', icon: 'manage_accounts', path: '/users', adminOnly: true },
 ];
+
+import { useState, useEffect } from 'react';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const userResult = auth.getCurrentUser();
+    setIsAdmin(userResult?.role === 'admin');
+  }, []);
 
   const handleLogout = () => {
     if (confirm("Are you sure you want to initialize logout protocol?")) {
       auth.logout();
     }
   };
+
+  const filteredItems = menuItems.filter(item => !item.adminOnly || isAdmin);
 
   return (
     <aside className="w-64 border-r border-outline-variant/40 bg-surface-container-low h-screen fixed left-0 top-0 flex flex-col py-6 z-50">
@@ -35,7 +45,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 px-3 overflow-y-auto">
-        {menuItems.map((item) => {
+        {filteredItems.map((item) => {
           const isActive = pathname === item.path;
           return (
             <Link

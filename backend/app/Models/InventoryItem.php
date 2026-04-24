@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['item_name', 'code', 'quantity', 'serial_number', 'image', 'description', 'stored_place_id', 'status'])]
+#[Fillable(['item_name', 'code', 'quantity', 'serial_number', 'image', 'description', 'place_id', 'status'])]
 class InventoryItem extends Model
 {
     use SoftDeletes;
@@ -21,7 +21,7 @@ class InventoryItem extends Model
 
     public function place()
     {
-        return $this->belongsTo(Place::class, 'stored_place_id');
+        return $this->belongsTo(Place::class);
     }
 
     public function incrementQuantity($amount = 1)
