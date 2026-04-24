@@ -1,73 +1,146 @@
 "use client";
-import React from 'react';
-import Breadcrumb from '@/components/Breadcrumb';
 
-const logs = [
-    { id: 1, type: "Access", event: "User login successful", user: "Admin", ip: "192.168.1.1", time: "2024-04-24 10:15:32", severity: "Low" },
-    { id: 2, type: "Inventory", event: "Item 'MacBook Pro' quantity decreased", user: "Elena Vance", ip: "192.168.1.42", time: "2024-04-24 10:12:05", severity: "Medium" },
-    { id: 3, type: "Security", event: "Multiple failed login attempts", user: "Unknown", ip: "45.12.88.2", time: "2024-04-24 09:45:12", severity: "High" },
-    { id: 4, type: "Storage", event: "New location 'Cupboard D' created", user: "Admin", ip: "192.168.1.1", time: "2024-04-24 08:30:00", severity: "Low" },
-    { id: 5, type: "System", action: "Database backup completed", user: "Automated Task", ip: "Localhost", time: "2024-04-24 00:00:01", severity: "Low" },
-];
+import { useEffect, useState } from 'react';
+import Breadcrumb from '@/components/Breadcrumb';
+import PageButton from '@/components/PageButton';
+import { ActivityLog, getActivityLogs } from '@/services/ActivityService';
+import { TableLoading } from '@/components/TableLoading';
+import { TableEmpty } from '@/components/TableEmpty';
+import { showError } from '@/lib/alert';
 
 export default function AuditLogsPage() {
+    const [logs, setLogs] = useState<ActivityLog[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [meta, setMeta] = useState<any>(null);
+    const [page, setPage] = useState(1);
+
+    useEffect(() => {
+        loadLogs();
+    }, [page]);
+
+    const loadLogs = async () => {
+        try {
+            setLoading(true);
+            const res = await getActivityLogs(page);
+            setLogs(res.items);
+            setMeta(res.meta);
+        } catch (error: any) {
+            showError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getActionBadge = (action: string) => {
+        const styles: any = {
+            created: "bg-success/10 text-success border-success/20",
+            updated: "bg-info/10 text-info border-info/20",
+            deleted: "bg-error/10 text-error border-error/20",
+            borrowed: "bg-warning/10 text-warning border-warning/20",
+            returned: "bg-primary/10 text-primary border-primary/20",
+        };
+        return (
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tight border ${styles[action] || 'bg-outline/10 text-outline border-outline/20'}`}>
+                {action}
+            </span>
+        );
+    };
+
+    const formatEntityName = (type: string) => {
+        return type.split('\\').pop()?.replace(/([A-Z])/g, ' $1').trim() || type;
+    };
+
     return (
-        <div className="space-y-xl">
-            <div className="flex justify-between items-end mb-8">
+        <div className="bg-background font-body-md text-on-surface">
+            <div className="mb-8">
                 <Breadcrumb
-                    pageTitle="System Events"
+                    pageTitle="System Audit Logs"
                     items={[
                         { label: "Audit Logs", active: true }
                     ]}
                 />
-
-                <div className="flex gap-2">
-                    <button className="p-2.5 border border-outline-variant rounded-xl text-outline hover:text-on-surface hover:bg-surface-bright transition-all">
-                        <span className="material-symbols-outlined text-lg">filter_alt</span>
-                    </button>
-                    <button className="bg-surface-container-high hover:bg-surface-bright px-6 py-2.5 rounded-xl text-sm font-bold tracking-wider flex items-center gap-2 transition-all border border-outline-variant/50">
-                        <span className="material-symbols-outlined text-lg">description</span>
-                        Export Report
-                    </button>
-                </div>
             </div>
 
-            <div className="bg-surface-container-low border border-outline-variant/30 rounded-2xl shadow-2xl overflow-hidden font-mono text-xs">
+            <div className="bg-surface-container-low border border-outline-variant/30 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-md">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-surface-container-high/40 border-b border-outline-variant/30 font-bold uppercase tracking-widest text-[9px] text-outline">
-                                <th className="p-5">Timestamp</th>
-                                <th className="p-5">Identity</th>
-                                <th className="p-5">Event Description</th>
-                                <th className="p-5">Terminal IP</th>
-                                <th className="p-5">Severity</th>
+                            <tr className="bg-surface-container-high/40 border-b border-outline-variant/20">
+                                <th className="p-5 text-[10px] font-black text-outline uppercase tracking-widest">Timestamp</th>
+                                <th className="p-5 text-[10px] font-black text-outline uppercase tracking-widest">Operator</th>
+                                <th className="p-5 text-[10px] font-black text-outline uppercase tracking-widest">Action</th>
+                                <th className="p-5 text-[10px] font-black text-outline uppercase tracking-widest">Target Entity</th>
+                                <th className="p-5 text-[10px] font-black text-outline uppercase tracking-widest">Change Summary</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-outline-variant/10">
-                            {logs.map((log) => (
-                                <tr key={log.id} className="hover:bg-primary/5 transition-colors group">
-                                    <td className="p-5 text-outline group-hover:text-primary transition-colors">{log.time}</td>
-                                    <td className="p-5 text-on-surface-variant">
-                                        <span className="px-1.5 py-0.5 rounded bg-surface-container-high font-bold border border-outline-variant/50">{log.user}</span>
-                                    </td>
-                                    <td className="p-5 text-on-surface">
-                                        <span className="text-primary-fixed-dim mr-2">[{log.type}]</span>
-                                        {log.event}
-                                    </td>
-                                    <td className="p-5 text-outline/80">{log.ip}</td>
-                                    <td className="p-5">
-                                        <span className={`font-black uppercase tracking-widest text-[9px] ${log.severity === 'High' ? 'text-error' :
-                                                log.severity === 'Medium' ? 'text-tertiary' : 'text-primary'
-                                            }`}>
-                                            {log.severity}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
+                        <tbody className="divide-y divide-outline-variant/10 font-body-md">
+                            {loading ? (
+                                <TableLoading colSpan={5} />
+                            ) : logs.length > 0 ? (
+                                logs.map(log => (
+                                    <tr key={log.id} className="hover:bg-surface-bright/30 transition-colors group">
+                                        <td className="p-5 text-xs text-outline font-mono">
+                                            {new Date(log.created_at).toLocaleString()}
+                                        </td>
+                                        <td className="p-5">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20 capitalize">
+                                                    {log.user?.name.charAt(0)}
+                                                </div>
+                                                <span className="font-bold text-sm tracking-tight">{log.user?.name}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-5">
+                                            {getActionBadge(log.action)}
+                                        </td>
+                                        <td className="p-5">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] font-black text-outline uppercase tracking-widest">
+                                                    {formatEntityName(log.entity_type)}
+                                                </span>
+                                                <span className="text-xs font-mono text-primary/70">ID: {log.entity_id}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-5 max-w-xs">
+                                            <div className="text-xs text-on-surface-variant truncate">
+                                                {log.action === 'updated' && log.new_values ? (
+                                                    <span>Modified: {Object.keys(log.new_values).join(', ')}</span>
+                                                ) : (
+                                                    <span className="text-outline italic">Record {log.action}</span>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <TableEmpty colSpan={5} />
+                            )}
                         </tbody>
                     </table>
                 </div>
+
+                {meta && meta.last_page > 1 && (
+                    <div className="p-6 border-t border-outline-variant/20 flex items-center justify-between bg-surface-container/30">
+                        <p className="text-xs text-outline">
+                            Showing <span className="font-bold text-on-surface">{logs.length}</span> entries
+                        </p>
+                        <div className="flex gap-2">
+                            <PageButton 
+                                icon="chevron_left" 
+                                disabled={page === 1}
+                                onClick={() => setPage(page - 1)}
+                            />
+                            <span className="self-center text-[10px] font-black px-4 uppercase tracking-widest">
+                                Page {page} / {meta.last_page}
+                            </span>
+                            <PageButton 
+                                icon="chevron_right" 
+                                disabled={page === meta.last_page}
+                                onClick={() => setPage(page + 1)}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

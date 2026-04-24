@@ -53,6 +53,8 @@ class InventoryItemAPIController extends Controller
 
         $inventoryItem = InventoryItem::create($data);
 
+        $inventoryItem->logActivity('Inventory Item Created', null, $inventoryItem->toArray());
+
         return response()->apiSuccess(new InventoryItemResource($inventoryItem), 'Inventory item created successfully', 201);
     }
 
@@ -80,6 +82,8 @@ class InventoryItemAPIController extends Controller
         }
 
         $inventoryItem->update($data);
+
+        $inventoryItem->logActivity('Inventory Item Updated', $inventoryItem->toArray(), $data);
 
         return response()->apiSuccess(new InventoryItemResource($inventoryItem), 'Inventory item updated successfully');
     }

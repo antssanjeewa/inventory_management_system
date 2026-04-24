@@ -26,6 +26,8 @@ class UsersAPIController extends Controller
     {
         $user = User::create($request->validated());
 
+        $user->logActivity('User Created', null, $user->toArray());
+
         return response()->apiSuccess(new UserResource($user), 'User created successfully', 201);
     }
 
