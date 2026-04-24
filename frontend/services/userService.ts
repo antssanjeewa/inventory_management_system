@@ -7,20 +7,6 @@ export interface User {
   role: "admin" | "staff";
 }
 
-export interface UserResponse {
-  data: User[];
-  meta: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    links: {
-      next: string | null;
-      prev: string | null;
-    };
-  };
-}
-
 // GET all users
 export const getUsers = async (page: number = 1) => {
   const res = await api.get<ApiResponse<User[]>>(`/users?page=${page}`);
@@ -32,12 +18,6 @@ export const getUsers = async (page: number = 1) => {
     users: res.data.data,
     meta: res.data.meta,
   };
-};
-
-// GET single user
-export const getUser = async (id: number): Promise<User> => {
-  const res = await api.get(`/users/${id}`);
-  return res.data.data;
 };
 
 // CREATE user

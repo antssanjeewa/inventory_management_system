@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\StoreInventoryItemRequest;
 use App\Http\Requests\API\UpdateInventoryItemRequest;
+use App\Http\Resources\InventoryItemResource;
 
 class InventoryItemAPIController extends Controller
 {
@@ -16,7 +17,7 @@ class InventoryItemAPIController extends Controller
     public function index()
     {
         $items = InventoryItem::with('place')->paginate();
-        return response()->apiSuccess($items);
+        return response()->apiSuccessPaginated(InventoryItemResource::collection($items));
     }
 
     /**

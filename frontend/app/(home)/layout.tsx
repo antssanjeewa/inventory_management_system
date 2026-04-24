@@ -35,7 +35,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
       </head>
       <body>
-        <div className="min-h-screen bg-background text-on-surface font-inter">
+        <div className="min-h-screen bg-background text-sm font-inter">
           <Sidebar />
           <div className="ml-64">
             <TopBar />

@@ -3,19 +3,27 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\Place;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\StorePlaceRequest;
 use App\Http\Requests\API\UpdatePlaceRequest;
+use App\Http\Resources\PlaceResource;
 
 class PlaceAPIController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $items = Place::paginate();
-        return response()->apiSuccess($items);
+        $query = Place::query();
+
+        if ($request->has('cupboard_id')) {
+            $query->where('cupboard_id', $request->cupboard_id);
+        }
+
+        $items = $query->withCount('items')->paginate();
+        return response()->apiSuccessPaginated(PlaceResource::collection($items));
     }
 
     /**

@@ -12,7 +12,7 @@ export default function Breadcrumb({ pageTitle, items }: BreadcrumbProps) {
         <div>
             <h2 className="text-2xl font-bold tracking-tight">{pageTitle}</h2>
             <nav className="flex mt-1 items-center text-outline text-[10px] tracking-widest uppercase font-bold">
-                <Link href="/">Home</Link>
+                <Link href="/dashboard">Home</Link>
                 <span className="material-symbols-outlined text-[12px] mx-1">chevron_right</span>
                 {items.map((item, index) => (
                     <React.Fragment key={item.label}>

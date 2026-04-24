@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\StoreCupboardRequest;
 use App\Http\Requests\API\UpdateCupboardRequest;
+use App\Http\Resources\CupboardResource;
 use App\Models\Cupboard;
 
 class CupboardAPIController extends Controller
@@ -14,8 +15,8 @@ class CupboardAPIController extends Controller
      */
     public function index()
     {
-        $items = Cupboard::paginate();
-        return response()->apiSuccess($items);
+        $items = Cupboard::withCount('places')->paginate();
+        return response()->apiSuccessPaginated(CupboardResource::collection($items));
     }
 
     /**
