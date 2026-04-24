@@ -2,14 +2,22 @@
 
 namespace App\Models;
 
+use App\Enums\ItemStatus;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable(['item_name','code','quantity','serial_number','image','description','stored_place_id','status'])]
+#[Fillable(['item_name', 'code', 'quantity', 'serial_number', 'image', 'description', 'stored_place_id', 'status'])]
 class InventoryItem extends Model
 {
     use SoftDeletes;
+
+    protected function casts(): array
+    {
+        return [
+            'status' => ItemStatus::class
+        ];
+    }
 
     public function place()
     {

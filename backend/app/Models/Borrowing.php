@@ -10,4 +10,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 class Borrowing extends Model
 {
     use SoftDeletes;
+    public function inventoryItem()
+    {
+        return $this->belongsTo(InventoryItem::class);
+    }
 }
