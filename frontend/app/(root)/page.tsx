@@ -24,10 +24,8 @@ export default function LoginPage() {
         password: password,
       });
 
-      if (response.data.success === true) {
-        localStorage.setItem("token", response.data.access_token);
+      if (response.success === true) {
         router.push("/dashboard");
-
       }
     } catch (err: any) {
       setError(err.response?.data?.message || "Error");

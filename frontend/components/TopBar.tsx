@@ -2,16 +2,9 @@ import React from 'react';
 
 export default function Topbar() {
     return (
-        <header className="h-16 border-b border-outline-variant bg-surface-container/80 backdrop-blur-md sticky top-0 flex items-center justify-between px-8 z-40">
+        <header className="h-16 border-b border-outline-variant/40 bg-surface-container/80 backdrop-blur-md sticky top-0 flex items-center justify-between px-8 z-40">
             <div className="max-w-xl w-full">
-                <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
-                    <input
-                        type="text"
-                        placeholder="Global search..."
-                        className="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-sm text-on-surface focus:ring-1 focus:ring-primary outline-none"
-                    />
-                </div>
+
             </div>
             <div className="flex items-center gap-4">
                 <button className="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors">

@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import Breadcrumb from '@/components/Breadcrumb';
 
 const borrowings = [
     { id: 1, user: "Elena Vance", item: "MacBook Pro 16\"", code: "CEY-IT-0294", date: "2024-04-20", returnDate: "2024-05-20", status: "Active" },
@@ -11,16 +12,13 @@ const borrowings = [
 export default function BorrowingPage() {
     return (
         <div className="space-y-xl">
-            <div className="flex justify-between items-end">
-                <div className="space-y-1">
-                    <nav className="flex items-center gap-2 text-outline text-[10px] tracking-widest uppercase font-bold">
-                        <span>Home</span>
-                        <span className="material-symbols-outlined text-[12px]">chevron_right</span>
-                        <span className="text-primary-fixed-dim">Borrowing Log</span>
-                    </nav>
-                    <h2 className="text-h1 font-h1 tracking-tight">Active Borrowings</h2>
-                    <p className="text-body-sm text-outline">Manage item allocations and track return protocols.</p>
-                </div>
+            <div className="flex justify-between items-end mb-8">
+                <Breadcrumb
+                    pageTitle="Active Borrowings"
+                    items={[
+                        { label: "Borrowing Log", active: true }
+                    ]}
+                />
 
                 <button className="bg-primary-container hover:bg-primary px-6 py-2.5 rounded-xl text-sm font-bold tracking-wider flex items-center gap-2 transition-all active:scale-95 text-on-primary">
                     <span className="material-symbols-outlined text-lg">sync_alt</span>
@@ -59,11 +57,10 @@ export default function BorrowingPage() {
                                     <td className="p-5 text-sm text-on-surface-variant font-medium">{b.date}</td>
                                     <td className="p-5 text-sm text-on-surface-variant font-medium">{b.returnDate}</td>
                                     <td className="p-5">
-                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tight border ${
-                                            b.status === 'Active' ? 'bg-primary/10 text-primary-fixed-dim border-primary/20' :
-                                            b.status === 'Overdue' ? 'bg-error-container/20 text-error border-error/30' :
-                                            'bg-surface-container-highest text-outline border-outline-variant'
-                                        }`}>
+                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tight border ${b.status === 'Active' ? 'bg-primary/10 text-primary-fixed-dim border-primary/20' :
+                                                b.status === 'Overdue' ? 'bg-error-container/20 text-error border-error/30' :
+                                                    'bg-surface-container-highest text-outline border-outline-variant'
+                                            }`}>
                                             {b.status}
                                         </span>
                                     </td>

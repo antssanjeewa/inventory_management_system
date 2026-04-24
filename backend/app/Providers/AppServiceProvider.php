@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +25,24 @@ class AppServiceProvider extends ServiceProvider
                 'success' => true,
                 'message' => $message,
                 'data' => $data,
+            ], $status);
+        });
+
+        Response::macro('apiSuccessPaginated', function ($paginator, $message = "Success", $status = 200) {
+            return Response::json([
+                'success' => true,
+                'message' => $message,
+                'data' => $paginator->items(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                    'links' => [
+                        'next' => $paginator->nextPageUrl(),
+                        'prev' => $paginator->previousPageUrl(),
+                    ],
+                ],
             ], $status);
         });
 

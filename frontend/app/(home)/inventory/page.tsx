@@ -1,5 +1,8 @@
 "use client";
-import React, { useState, useMemo } from 'react';
+
+import { useState, useMemo } from 'react';
+import PageButton from '@/components/PageButton';
+import Breadcrumb from '@/components/Breadcrumb';
 
 const INITIAL_ITEMS = [
     { id: 1, name: "MacBook Pro 16\"", icon: "laptop_mac", code: "CEY-IT-0294", qty: "14", place: "Cupboard A-12", status: "In-Store", statusType: "success" },
@@ -15,8 +18,8 @@ export default function InventoryPage() {
 
     const filteredItems = useMemo(() => {
         return INITIAL_ITEMS.filter(item => {
-            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || 
-                                 item.code.toLowerCase().includes(search.toLowerCase());
+            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
+                item.code.toLowerCase().includes(search.toLowerCase());
             const matchesStatus = statusFilter === "All" || item.status === statusFilter;
             return matchesSearch && matchesStatus;
         });
@@ -24,18 +27,13 @@ export default function InventoryPage() {
 
     return (
         <div className="bg-background font-body-md text-on-surface">
-            <div className="flex justify-between items-end mb-xl">
-                <div className="space-y-1">
-                    <nav className="flex items-center gap-2 text-outline text-[10px] tracking-widest uppercase font-bold">
-                        <span>Home</span>
-                        <span className="material-symbols-outlined text-[12px]">chevron_right</span>
-                        <span className="text-primary-fixed-dim">Inventory</span>
-                    </nav>
-                    <h2 className="text-h1 font-h1 tracking-tight">Item Inventory</h2>
-                    <p className="text-body-sm text-outline">
-                        Manage and track system assets across all storage locations.
-                    </p>
-                </div>
+            <div className="flex justify-between items-end mb-8">
+                <Breadcrumb
+                    pageTitle="Item Inventory"
+                    items={[
+                        { label: "Inventory", active: true }
+                    ]}
+                />
 
                 <button className="bg-primary-container hover:bg-primary px-6 py-2.5 rounded-xl text-sm tracking-wider flex items-center gap-2 transition-all active:scale-95 text-on-primary font-bold">
                     <span className="material-symbols-outlined text-lg">add</span>
@@ -45,28 +43,23 @@ export default function InventoryPage() {
 
             <div className="bg-surface-container-low border border-outline-variant/30 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-md">
                 <div className="p-lg border-b border-outline-variant/20 bg-surface-container/50 flex flex-wrap gap-4 items-center justify-between">
-                    <div className="flex flex-wrap gap-3 flex-1">
-                        <div className="relative group flex-1 max-w-sm">
+                    <div className="flex flex-wrap gap-3 flex-1 justify-end">
+                        <div className="relative group">
                             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-lg">search</span>
                             <input
                                 type="text"
                                 placeholder="Filter by name or code..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="w-full bg-surface-container-lowest border border-outline-variant text-on-surface rounded-xl pl-10 pr-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
+                                className="bg-surface-container-lowest border border-outline-variant text-on-surface rounded-xl pl-10 pr-4 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all"
                             />
                         </div>
-                        <FilterSelect 
-                            value={statusFilter} 
+                        <FilterSelect
+                            value={statusFilter}
                             onChange={(e: any) => setStatusFilter(e.target.value)}
                             options={["All", "In-Store", "Borrowed", "Low Stock", "Missing", "Reserved"]}
                         />
                         <FilterSelect label="Cupboard A-1" options={["Cupboard A-1", "Cupboard B-4", "Server Room B"]} />
-                    </div>
-
-                    <div className="flex gap-2">
-                        <IconButton icon="file_download" />
-                        <IconButton icon="print" />
                     </div>
                 </div>
 
@@ -154,8 +147,8 @@ function InventoryRow({ name, icon, code, qty, place, status, statusType }: any)
 
 function FilterSelect({ value, onChange, options, label }: any) {
     return (
-        <select 
-            value={value} 
+        <select
+            value={value}
             onChange={onChange}
             className="bg-surface-container-lowest border border-outline-variant text-on-surface-variant rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-primary transition-colors cursor-pointer"
         >
@@ -164,27 +157,5 @@ function FilterSelect({ value, onChange, options, label }: any) {
                 <option key={opt} value={opt}>{opt}</option>
             ))}
         </select>
-    );
-}
-
-function IconButton({ icon }: any) {
-    return (
-        <button className="p-2.5 border border-outline-variant rounded-xl text-outline hover:text-on-surface hover:bg-surface-bright transition-all">
-            <span className="material-symbols-outlined text-lg">{icon}</span>
-        </button>
-    );
-}
-
-function PageButton({ label, icon, active, disabled }: any) {
-    return (
-        <button
-            disabled={disabled}
-            className={`w-9 h-9 flex items-center justify-center rounded-xl border text-sm font-bold transition-all
-            ${active ? 'bg-primary text-on-primary border-primary shadow-lg shadow-primary/20' :
-                    disabled ? 'border-outline-variant text-outline-variant opacity-30 cursor-not-allowed' :
-                        'border-outline-variant text-outline hover:bg-surface-bright hover:text-on-surface'}`}
-        >
-            {icon ? <span className="material-symbols-outlined text-lg">{icon}</span> : label}
-        </button>
     );
 }

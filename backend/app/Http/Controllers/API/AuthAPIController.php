@@ -19,7 +19,7 @@ class AuthAPIController extends Controller
         ]);
 
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->apiError('Invalid credentials', [], 401);
+            return response()->apiError('Invalid credentials');
         }
 
         $user = Auth::user();

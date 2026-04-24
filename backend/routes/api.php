@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\PlaceAPIController;
+use App\Http\Controllers\API\UsersAPIController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthAPIController;
 use App\Http\Controllers\API\CupboardAPIController;
@@ -21,4 +22,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('inventory-items', InventoryItemAPIController::class);
     Route::apiResource('borrowings', BorrowingAPIController::class);
+
+    Route::apiResource('users', UsersAPIController::class);
 });

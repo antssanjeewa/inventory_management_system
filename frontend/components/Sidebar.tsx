@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { auth } from '@/lib/auth';
@@ -23,7 +23,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-64 border-r border-outline-variant bg-surface-container-low h-screen fixed left-0 top-0 flex flex-col py-6 z-50">
+    <aside className="w-64 border-r border-outline-variant/40 bg-surface-container-low h-screen fixed left-0 top-0 flex flex-col py-6 z-50">
       <div className="px-6 mb-10 flex items-center gap-3">
         <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
           <span className="material-symbols-outlined text-on-primary text-lg">inventory_2</span>
@@ -41,12 +41,12 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.path}
-              className={`flex items-center px-3 py-2.5 rounded-xl text-sm font-bold transition-all group ${isActive
-                ? 'bg-primary-container text-on-primary-container shadow-lg shadow-primary/10'
+              className={`flex items-center px-3 py-2 rounded-xl text-xs font-bold transition-all group ${isActive
+                ? 'bg-primary/10 border-r-2 border-primary/50'
                 : 'text-on-surface-variant hover:bg-surface-container-high'
                 }`}
             >
-              <span className={`material-symbols-outlined mr-3 transition-transform group-hover:scale-110 ${isActive ? 'text-on-primary-container' : 'text-outline'}`}>
+              <span className={`material-symbols-outlined mr-3 transition-transform group-hover:scale-110 ${isActive ? '' : 'text-outline'}`}>
                 {item.icon}
               </span>
               {item.name}

@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import Breadcrumb from '@/components/Breadcrumb';
 
 export default function DashboardPage() {
     const stats = [
@@ -18,14 +19,13 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-xl animate-in fade-in duration-500">
-            <div className="space-y-1">
-                <nav className="flex items-center gap-2 text-outline text-[10px] tracking-widest uppercase font-bold">
-                    <span>Home</span>
-                    <span className="material-symbols-outlined text-[12px]">chevron_right</span>
-                    <span className="text-primary-fixed-dim">Dashboard Overview</span>
-                </nav>
-                <h2 className="text-h1 font-h1 tracking-tight">Command Center</h2>
-                <p className="text-body-sm text-outline">Real-time telemetry and operational metrics for Ceyntics ERP.</p>
+            <div className="mb-8">
+                <Breadcrumb
+                    pageTitle="Command Center"
+                    items={[
+                        { label: "Dashboard Overview", active: true }
+                    ]}
+                />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg">
@@ -54,12 +54,12 @@ export default function DashboardPage() {
                             <span className="flex items-center gap-1 text-outline"><span className="w-2 h-2 rounded-full bg-outline"></span>Outbound</span>
                         </div>
                     </div>
-                    
+
                     <div className="h-64 flex items-end gap-2 px-2">
                         {[40, 70, 45, 90, 65, 80, 55, 30, 85, 60, 75, 50].map((h, i) => (
                             <div key={i} className="flex-1 space-y-2 group">
                                 <div className="relative h-full flex flex-col justify-end">
-                                    <div 
+                                    <div
                                         className="w-full bg-primary/20 hover:bg-primary transition-all rounded-t-lg cursor-pointer"
                                         style={{ height: `${h}%` }}
                                     >
@@ -68,7 +68,7 @@ export default function DashboardPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-[8px] text-outline text-center font-bold">M{i+1}</div>
+                                <div className="text-[8px] text-outline text-center font-bold">M{i + 1}</div>
                             </div>
                         ))}
                     </div>

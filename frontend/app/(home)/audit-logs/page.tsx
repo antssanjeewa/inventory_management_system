@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import Breadcrumb from '@/components/Breadcrumb';
 
 const logs = [
     { id: 1, type: "Access", event: "User login successful", user: "Admin", ip: "192.168.1.1", time: "2024-04-24 10:15:32", severity: "Low" },
@@ -12,16 +13,13 @@ const logs = [
 export default function AuditLogsPage() {
     return (
         <div className="space-y-xl">
-            <div className="flex justify-between items-end">
-                <div className="space-y-1">
-                    <nav className="flex items-center gap-2 text-outline text-[10px] tracking-widest uppercase font-bold">
-                        <span>Home</span>
-                        <span className="material-symbols-outlined text-[12px]">chevron_right</span>
-                        <span className="text-primary-fixed-dim">Audit Logs</span>
-                    </nav>
-                    <h2 className="text-h1 font-h1 tracking-tight">System Events</h2>
-                    <p className="text-body-sm text-outline">Immutable record of all system interactions and telemetry.</p>
-                </div>
+            <div className="flex justify-between items-end mb-8">
+                <Breadcrumb
+                    pageTitle="System Events"
+                    items={[
+                        { label: "Audit Logs", active: true }
+                    ]}
+                />
 
                 <div className="flex gap-2">
                     <button className="p-2.5 border border-outline-variant rounded-xl text-outline hover:text-on-surface hover:bg-surface-bright transition-all">
@@ -59,10 +57,9 @@ export default function AuditLogsPage() {
                                     </td>
                                     <td className="p-5 text-outline/80">{log.ip}</td>
                                     <td className="p-5">
-                                        <span className={`font-black uppercase tracking-widest text-[9px] ${
-                                            log.severity === 'High' ? 'text-error' :
-                                            log.severity === 'Medium' ? 'text-tertiary' : 'text-primary'
-                                        }`}>
+                                        <span className={`font-black uppercase tracking-widest text-[9px] ${log.severity === 'High' ? 'text-error' :
+                                                log.severity === 'Medium' ? 'text-tertiary' : 'text-primary'
+                                            }`}>
                                             {log.severity}
                                         </span>
                                     </td>
