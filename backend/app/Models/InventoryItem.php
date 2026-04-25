@@ -24,18 +24,4 @@ class InventoryItem extends Model
     {
         return $this->belongsTo(Place::class);
     }
-
-    public function incrementQuantity($amount = 1)
-    {
-        $this->quantity += $amount;
-        $this->save();
-    }
-
-    public function decrementQuantity($amount = 1)
-    {
-        if ($this->quantity >= $amount) {
-            $this->quantity -= $amount;
-            $this->save();
-        }
-    }
 }

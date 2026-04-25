@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\InventoryItem;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\StoreInventoryItemRequest;
 use App\Http\Requests\API\UpdateInventoryItemRequest;
 use App\Http\Resources\InventoryItemResource;
+use App\Models\InventoryItem;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class InventoryItemAPIController extends Controller
 {
@@ -72,20 +73,24 @@ class InventoryItemAPIController extends Controller
      */
     public function update(UpdateInventoryItemRequest $request, InventoryItem $inventoryItem)
     {
-        $data = $request->validated();
+        return DB::transaction(function () use ($request, $inventoryItem) {
+            $data = $request->validated();
+            $oldData = $inventoryItem->toArray();
 
-        if ($request->hasFile('image')) {
-            if ($inventoryItem->image) {
-                Storage::disk('public')->delete($inventoryItem->image);
+            if ($request->hasFile('image')) {
+                $data['image'] = $request->file('image')->store('inventory', 'public');
             }
-            $data['image'] = $request->file('image')->store('inventory', 'public');
-        }
 
-        $inventoryItem->update($data);
+            $inventoryItem->update($data);
 
-        $inventoryItem->logActivity('Inventory Item Updated', $inventoryItem->toArray(), $data);
+            if (isset($data['image']) && $oldData['image']) {
+                Storage::disk('public')->delete($oldData['image']);
+            }
 
-        return response()->apiSuccess(new InventoryItemResource($inventoryItem), 'Inventory item updated successfully');
+            $inventoryItem->logActivity('Inventory Item Updated', $oldData, $inventoryItem->toArray());
+
+            return response()->apiSuccess(new InventoryItemResource($inventoryItem), 'Inventory item updated successfully');
+        });
     }
 
     /**

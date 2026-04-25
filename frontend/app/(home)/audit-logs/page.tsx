@@ -1,18 +1,24 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { showError } from '@/lib/alert';
+import { ActivityLog, getActivityLogs } from '@/services/ActivityService';
+
 import Breadcrumb from '@/components/Breadcrumb';
 import PageButton from '@/components/PageButton';
-import { ActivityLog, getActivityLogs } from '@/services/ActivityService';
 import { TableLoading } from '@/components/TableLoading';
 import { TableEmpty } from '@/components/TableEmpty';
-import { showError } from '@/lib/alert';
+import AuditDetailsDialog from './components/AuditDetailsDialog';
+
 
 export default function AuditLogsPage() {
     const [logs, setLogs] = useState<ActivityLog[]>([]);
     const [loading, setLoading] = useState(true);
     const [meta, setMeta] = useState<any>(null);
     const [page, setPage] = useState(1);
+    const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
 
     useEffect(() => {
         loadLogs();
@@ -31,24 +37,15 @@ export default function AuditLogsPage() {
         }
     };
 
-    const getActionBadge = (action: string) => {
-        const styles: any = {
-            created: "bg-success/10 text-success border-success/20",
-            updated: "bg-info/10 text-info border-info/20",
-            deleted: "bg-error/10 text-error border-error/20",
-            borrowed: "bg-warning/10 text-warning border-warning/20",
-            returned: "bg-primary/10 text-primary border-primary/20",
-        };
-        return (
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tight border ${styles[action] || 'bg-outline/10 text-outline border-outline/20'}`}>
-                {action}
-            </span>
-        );
-    };
-
     const formatEntityName = (type: string) => {
         return type.split('\\').pop()?.replace(/([A-Z])/g, ' $1').trim() || type;
     };
+
+    const handleViewDetails = (log: ActivityLog) => {
+        setSelectedLog(log);
+        setIsDialogOpen(true);
+    };
+
 
     return (
         <div className="bg-background font-body-md text-on-surface">
@@ -70,7 +67,7 @@ export default function AuditLogsPage() {
                                 <th className="p-5 text-[10px] font-black text-outline uppercase tracking-widest">Operator</th>
                                 <th className="p-5 text-[10px] font-black text-outline uppercase tracking-widest">Action</th>
                                 <th className="p-5 text-[10px] font-black text-outline uppercase tracking-widest">Target Entity</th>
-                                <th className="p-5 text-[10px] font-black text-outline uppercase tracking-widest">Change Summary</th>
+                                <th className="p-5 text-[10px] font-black text-outline uppercase tracking-widest text-end">Change Summary</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-outline-variant/10 font-body-md">
@@ -79,10 +76,10 @@ export default function AuditLogsPage() {
                             ) : logs.length > 0 ? (
                                 logs.map(log => (
                                     <tr key={log.id} className="hover:bg-surface-bright/30 transition-colors group">
-                                        <td className="p-5 text-xs text-outline font-mono">
+                                        <td className="px-4 py-3 text-xs text-outline font-mono">
                                             {new Date(log.created_at).toLocaleString()}
                                         </td>
-                                        <td className="p-5">
+                                        <td className="px-4 py-3">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-black text-primary border border-primary/20 capitalize">
                                                     {log.user?.name.charAt(0)}
@@ -90,10 +87,10 @@ export default function AuditLogsPage() {
                                                 <span className="font-bold text-sm tracking-tight">{log.user?.name}</span>
                                             </div>
                                         </td>
-                                        <td className="p-5">
-                                            {getActionBadge(log.action)}
+                                        <td className="px-4 py-3">
+                                            {log.action}
                                         </td>
-                                        <td className="p-5">
+                                        <td className="px-4 py-3">
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] font-black text-outline uppercase tracking-widest">
                                                     {formatEntityName(log.entity_type)}
@@ -101,14 +98,15 @@ export default function AuditLogsPage() {
                                                 <span className="text-xs font-mono text-primary/70">ID: {log.entity_id}</span>
                                             </div>
                                         </td>
-                                        <td className="p-5 max-w-xs">
-                                            <div className="text-xs text-on-surface-variant truncate">
-                                                {log.action === 'updated' && log.new_values ? (
-                                                    <span>Modified: {Object.keys(log.new_values).join(', ')}</span>
-                                                ) : (
-                                                    <span className="text-outline italic">Record {log.action}</span>
-                                                )}
-                                            </div>
+                                        <td className="px-4 py-3 max-w-xs">
+                                            <button
+                                                onClick={() => handleViewDetails(log)}
+                                                className="flex items-center justify-end gap-4 w-full text-left group/btn"
+                                            >
+                                                <span className="material-symbols-outlined text-[18px] text-primary/40 group-hover/btn:text-primary group-hover/btn:scale-110 transition-all">
+                                                    open_in_new
+                                                </span>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -125,16 +123,16 @@ export default function AuditLogsPage() {
                             Showing <span className="font-bold text-on-surface">{logs.length}</span> entries
                         </p>
                         <div className="flex gap-2">
-                            <PageButton 
-                                icon="chevron_left" 
+                            <PageButton
+                                icon="chevron_left"
                                 disabled={page === 1}
                                 onClick={() => setPage(page - 1)}
                             />
                             <span className="self-center text-[10px] font-black px-4 uppercase tracking-widest">
                                 Page {page} / {meta.last_page}
                             </span>
-                            <PageButton 
-                                icon="chevron_right" 
+                            <PageButton
+                                icon="chevron_right"
                                 disabled={page === meta.last_page}
                                 onClick={() => setPage(page + 1)}
                             />
@@ -142,6 +140,13 @@ export default function AuditLogsPage() {
                     </div>
                 )}
             </div>
+
+            <AuditDetailsDialog
+                isOpen={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                log={selectedLog}
+            />
         </div>
+
     );
 }

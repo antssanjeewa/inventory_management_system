@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Enums\ItemStatus;
 use App\Http\Controllers\Controller;
 use App\Models\InventoryItem;
 use App\Models\Place;
@@ -16,8 +17,8 @@ class DashboardAPIController extends Controller
         $stats = [
             'total_items' => InventoryItem::count(),
             'total_places' => Place::count(),
-            'active_borrowings' => Borrowing::where('status', 'Borrowed')->count(),
-            'low_stock_count' => InventoryItem::where('status', 'Low-Stock')->count(),
+            'active_borrowings' => Borrowing::where('status', ItemStatus::BORROWED)->count(),
+            'missing_count' => InventoryItem::whereIn('status', [ItemStatus::DAMAGED, ItemStatus::MISSING])->count(),
         ];
 
         $latestActivities = ActivityLog::with('user')

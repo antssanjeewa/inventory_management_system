@@ -217,7 +217,7 @@ function InventoryRow({ item, onDelete }: { item: InventoryItem, onDelete: () =>
     const statusConfig: any = {
         'In-Store': { label: 'In Store', color: "bg-primary/10 text-primary border-primary/20" },
         'Borrowed': { label: 'Borrowed', color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-        'Damaged': { label: 'Damaged', color: "bg-warning/10 text-warning border-warning/20" },
+        'Damaged': { label: 'Damaged', color: "bg-orange-400/10 text-orange-400 border-orange-400/20" },
         'Missing': { label: 'Missing', color: "bg-error/10 text-error border-error/20" },
     };
 

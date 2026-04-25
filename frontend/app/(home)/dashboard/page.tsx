@@ -4,10 +4,18 @@ import { useEffect, useState } from 'react';
 import Breadcrumb from '@/components/Breadcrumb';
 import { DashboardData, getDashboardData } from '@/services/DashboardService';
 import Link from 'next/link';
+import { auth } from '@/lib/auth';
+import PageLoading from '@/components/PageLoading';
 
 export default function DashboardPage() {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        const userResult = auth.getCurrentUser();
+        setIsAdmin(userResult?.role === 'admin');
+    }, []);
 
     useEffect(() => {
         const loadDashboard = async () => {
@@ -26,15 +34,13 @@ export default function DashboardPage() {
     const statsConfig = [
         { label: "Total Assets", key: "total_items" as const, icon: "inventory_2", color: "bg-primary-container" },
         { label: "Active Borrowings", key: "active_borrowings" as const, icon: "sync_alt", color: "bg-secondary-container" },
-        { label: "Low Stock Alert", key: "low_stock_count" as const, icon: "warning", color: "bg-error-container/20" },
-        { label: "Storage Capacity", key: "total_places" as const, icon: "warehouse", color: "bg-surface-container-highest" },
+        { label: "Missing/Damaged Assets", key: "missing_count" as const, icon: "warning", color: "bg-error-container/20" },
+        { label: "Storage Places", key: "total_places" as const, icon: "warehouse", color: "bg-surface-container-highest" },
     ];
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-[60vh]">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
+            <PageLoading />
         );
     }
 
@@ -67,35 +73,37 @@ export default function DashboardPage() {
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
-                <div className="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-xl shadow-2xl">
-                    <div className="flex justify-between items-center mb-xl">
-                        <h3 className="font-h3 text-on-surface">Recent Activity</h3>
-                    </div>
-                    <div className="space-y-lg">
-                        {data?.latest_activities.map((act, i) => (
-                            <div key={i} className="flex gap-4 group">
-                                <div className="w-10 h-10 bg-surface-container-high rounded-full flex items-center justify-center border border-outline-variant/30 text-outline group-hover:text-primary transition-colors">
-                                    <span className="material-symbols-outlined text-[18px]">
-                                        {act.action === 'created' ? 'add_circle' : act.action === 'updated' ? 'edit' : 'history'}
-                                    </span>
+            {isAdmin ?
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+                    <div className="bg-surface-container-low border border-outline-variant/30 rounded-2xl p-xl shadow-2xl">
+                        <div className="flex justify-between items-center mb-xl">
+                            <h3 className="font-h3 text-on-surface">Recent Activity</h3>
+                        </div>
+                        <div className="space-y-lg">
+                            {data?.latest_activities.map((act, i) => (
+                                <div key={i} className="flex gap-4 group">
+                                    <div className="w-10 h-10 bg-surface-container-high rounded-full flex items-center justify-center border border-outline-variant/30 text-outline group-hover:text-primary transition-colors">
+                                        <span className="material-symbols-outlined text-[18px]">
+                                            {act.action === 'created' ? 'add_circle' : act.action === 'updated' ? 'edit' : 'history'}
+                                        </span>
+                                    </div>
+                                    <div className="flex-1 space-y-0.5">
+                                        <p className="text-sm font-bold text-on-surface">
+                                            <span className="text-primary-fixed-dim">{act.user?.name}</span> {act.action} <span className="text-on-surface-variant font-medium">record #{act.entity_id}</span>
+                                        </p>
+                                        <p className="text-[10px] text-outline font-black uppercase tracking-widest">
+                                            {new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="flex-1 space-y-0.5">
-                                    <p className="text-sm font-bold text-on-surface">
-                                        <span className="text-primary-fixed-dim">{act.user?.name}</span> {act.action} <span className="text-on-surface-variant font-medium">record #{act.entity_id}</span>
-                                    </p>
-                                    <p className="text-[10px] text-outline font-black uppercase tracking-widest">
-                                        {new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                        <Link href="/audit-logs" className="block text-center w-full mt-xl py-3 border border-outline-variant/50 rounded-xl text-xs font-bold uppercase tracking-widest text-outline hover:text-on-surface hover:bg-surface-container-high transition-all">
+                            Open Command Logs
+                        </Link>
                     </div>
-                    <Link href="/audit-logs" className="block text-center w-full mt-xl py-3 border border-outline-variant/50 rounded-xl text-xs font-bold uppercase tracking-widest text-outline hover:text-on-surface hover:bg-surface-container-high transition-all">
-                        Open Command Logs
-                    </Link>
                 </div>
-            </div>
+                : null}
         </div>
     );
 }

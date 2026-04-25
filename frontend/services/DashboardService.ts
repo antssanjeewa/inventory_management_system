@@ -6,7 +6,7 @@ export interface DashboardData {
         total_items: number;
         total_places: number;
         active_borrowings: number;
-        low_stock_count: number;
+        missing_count: number;
     };
     latest_activities: ActivityLog[];
 }

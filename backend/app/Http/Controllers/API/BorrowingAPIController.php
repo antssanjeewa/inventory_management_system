@@ -28,7 +28,9 @@ class BorrowingAPIController extends Controller
     public function store(StoreBorrowingRequest $request)
     {
         return DB::transaction(function () use ($request) {
-            $item = InventoryItem::findOrFail($request->inventory_item_id);
+            $item = InventoryItem::where('id', $request->inventory_item_id)
+                ->lockForUpdate()
+                ->first();
 
             if ($item->quantity < $request->quantity) {
                 return response()->apiError('Insufficient stock available.', 422);
@@ -38,9 +40,9 @@ class BorrowingAPIController extends Controller
                 'status' => 'Borrowed'
             ]));
 
-            $item->decrementQuantity($request->quantity);
+            $item->decrement('quantity', $request->quantity);
+            $item->refresh();
 
-            // If it was the last of the items, mark status as Borrowed
             if ($item->quantity == 0) {
                 $item->status = ItemStatus::BORROWED;
                 $item->save();
@@ -67,18 +69,24 @@ class BorrowingAPIController extends Controller
     public function update(UpdateBorrowingRequest $request, Borrowing $borrowing)
     {
         return DB::transaction(function () use ($request, $borrowing) {
+            $borrowing = Borrowing::where('id', $borrowing->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
             $oldStatus = $borrowing->status;
             $newStatus = $request->status;
             $oldData = $borrowing->toArray();
 
             if ($oldStatus === 'Borrowed' && $newStatus === 'Returned') {
-                $item = $borrowing->inventoryItem;
-                $item->incrementQuantity($borrowing->quantity);
+                $item = InventoryItem::where('id', $borrowing->inventory_item_id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-                // If it's back in store, ensure status is In-Store
+                $item->increment('quantity', $borrowing->quantity);
+                $item->refresh();
+
                 if ($item->status === ItemStatus::BORROWED) {
-                    $item->status = ItemStatus::IN_STORE;
-                    $item->save();
+                    $item->update(['status' => ItemStatus::IN_STORE]);
                 }
             }
 

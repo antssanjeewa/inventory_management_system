@@ -1,11 +1,13 @@
 "use client";
-import React, { useEffect, useState } from 'react';
-import Breadcrumb from '@/components/Breadcrumb';
+
+import { useEffect, useState } from 'react';
 import { Borrowing, getBorrowings, updateBorrowingStatus } from '@/services/BorrowingService';
+import { confirmAction, showError, showSuccess } from '@/lib/alert';
+
+import Breadcrumb from '@/components/Breadcrumb';
 import { TableLoading } from '@/components/TableLoading';
 import { TableEmpty } from '@/components/TableEmpty';
 import PageButton from '@/components/PageButton';
-import { confirmAction, showError, showSuccess } from '@/lib/alert';
 import BorrowingForm from './components/BorrowingForm';
 
 export default function BorrowingPage() {
@@ -37,9 +39,9 @@ export default function BorrowingPage() {
             "Initiate Return Protocol?",
             "Are you sure this asset has been returned according to protocol requirements?"
         );
-        
+
         if (!confirmed) return;
-        
+
         try {
             await updateBorrowingStatus(id, 'Returned');
             showSuccess("Registry Updated: Asset successfully returned to stock.");
@@ -53,13 +55,13 @@ export default function BorrowingPage() {
         <div className="space-y-xl animate-in fade-in duration-500">
             <div className="flex justify-between items-end mb-8">
                 <Breadcrumb
-                    pageTitle="Circulation Intelligence"
+                    pageTitle="Borrowing Details"
                     items={[
-                        { label: "Active Registry", active: true }
+                        { label: "Borrowing", active: true }
                     ]}
                 />
 
-                <button 
+                <button
                     onClick={() => setShowForm(true)}
                     className="bg-primary hover:bg-primary-container px-6 py-2.5 rounded-xl text-sm font-bold tracking-wider flex items-center gap-2 transition-all active:scale-95 text-on-primary shadow-lg shadow-primary/20"
                 >
@@ -103,8 +105,8 @@ export default function BorrowingPage() {
                                         <td className="p-5 text-xs text-on-surface-variant font-bold">{b.expected_return_date}</td>
                                         <td className="p-5">
                                             <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.1em] border ${b.status === 'Borrowed' ? 'bg-warning/10 text-warning border-warning/20' :
-                                                    b.status === 'Returned' ? 'bg-primary/10 text-primary border-primary/20' :
-                                                        'bg-error/10 text-error border-error/20'
+                                                b.status === 'Returned' ? 'bg-primary/10 text-primary border-primary/20' :
+                                                    'bg-error/10 text-error border-error/20'
                                                 }`}>
                                                 {b.status}
                                             </span>
@@ -155,9 +157,9 @@ export default function BorrowingPage() {
             </div>
 
             {showForm && (
-                <BorrowingForm 
-                    onClose={() => setShowForm(false)} 
-                    onSuccess={loadBorrowings} 
+                <BorrowingForm
+                    onClose={() => setShowForm(false)}
+                    onSuccess={loadBorrowings}
                 />
             )}
         </div>
