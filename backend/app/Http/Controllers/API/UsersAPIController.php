@@ -47,7 +47,7 @@ class UsersAPIController extends Controller
     public function destroy(User $user)
     {
         if (auth()->user()->id === $user->id) {
-            return response()->apiError('Cannot delete itself', 400);
+            return response()->apiError('Cannot delete itself', [], 400);
         }
 
         $user->delete();

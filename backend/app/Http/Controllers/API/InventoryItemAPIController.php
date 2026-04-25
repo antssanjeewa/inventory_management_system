@@ -29,8 +29,8 @@ class InventoryItemAPIController extends Controller
             });
         }
 
-        if ($request->filled('stored_place_id')) {
-            $query->where('stored_place_id', $request->stored_place_id);
+        if ($request->filled('place_id')) {
+            $query->where('place_id', $request->place_id);
         }
 
         if ($request->filled('status')) {

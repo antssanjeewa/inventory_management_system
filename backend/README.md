@@ -55,11 +55,29 @@ The API is structured around several core resources:
 - `/api/cupboards` & `/api/places` - Storage Structure
 - `/api/activity-logs` - Audit Logs (Admin Only)
 
+## 🧪 Testing
+
+The system includes a comprehensive suite of feature tests covering all API endpoints and business logic.
+
+Run the tests using Artisan:
+```bash
+php artisan test
+```
+
+Current test coverage includes:
+- **Authentication**: Login/Logout flows.
+- **Inventory**: CRUD operations, search filtering, and image handling.
+- **Borrowing**: Process flow (borrow/return) with stock validation and pessimistic locking.
+- **Storage**: Cupboard and Place management.
+- **Admin**: User management and Activity Log auditing.
+
 ## 🏗️ Architecture Features
+
 
 - **Pessimistic Locking**: Uses `lockForUpdate()` for stock-critical transactions.
 - **Polymorphic Logging**: Activity logs use a generic trait for system-wide auditability.
 - **API Resources**: Data transformation for consistent JSON output.
+- **Automated Testing**: Comprehensive feature test suite with 100+ assertions.
 - **Form Requests**: Decoupled validation logic.
 
 ---

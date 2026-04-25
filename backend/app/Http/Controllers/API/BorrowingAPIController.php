@@ -33,7 +33,7 @@ class BorrowingAPIController extends Controller
                 ->firstOrFail();
 
             if ($item->quantity < $request->quantity) {
-                return response()->apiError('Insufficient stock available.', 422);
+                return response()->apiError('Insufficient stock available.', [], 422);
             }
 
             $borrowing = Borrowing::create(array_merge($request->validated(), [
@@ -52,15 +52,6 @@ class BorrowingAPIController extends Controller
 
             return response()->apiSuccess(new BorrowingResource($borrowing), 'Item borrowed successfully', 201);
         });
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Borrowing $borrowing)
-    {
-        $borrowing->load('inventoryItem');
-        return response()->apiSuccess(new BorrowingResource($borrowing));
     }
 
     /**

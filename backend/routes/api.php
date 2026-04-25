@@ -17,13 +17,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthAPIController::class, 'logout']);
     Route::get('dashboard', [DashboardAPIController::class, 'index']);
 
-    Route::apiResource('cupboards', CupboardAPIController::class);
-    Route::apiResource('places', PlaceAPIController::class);
+    Route::apiResource('cupboards', CupboardAPIController::class)->except('show');
+    Route::apiResource('places', PlaceAPIController::class)->except('show');
 
     Route::apiResource('inventory-items', InventoryItemAPIController::class);
-    Route::apiResource('borrowings', BorrowingAPIController::class);
+    Route::apiResource('borrowings', BorrowingAPIController::class)->except('show');
     Route::get('inventory-items/{inventoryItem}/borrowings', [BorrowingAPIController::class, 'byItem']);
 
-    Route::apiResource('users', UsersAPIController::class)->middleware('role:admin');
+    Route::apiResource('users', UsersAPIController::class)->except('show')->middleware('role:admin');
     Route::get('activity-logs', [ActivityLogAPIController::class, 'index'])->middleware('role:admin');
 });

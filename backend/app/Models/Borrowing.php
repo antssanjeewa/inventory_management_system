@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable(['inventory_item_id', 'borrower_name', 'contact', 'borrow_date', 'expected_return_date', 'quantity', 'status'])]
 class Borrowing extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use SoftDeletes, LogsActivity, HasFactory;
     public function inventoryItem()
     {
         return $this->belongsTo(InventoryItem::class);

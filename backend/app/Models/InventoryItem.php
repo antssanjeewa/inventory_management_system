@@ -5,13 +5,14 @@ namespace App\Models;
 use App\Enums\ItemStatus;
 use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable(['item_name', 'code', 'quantity', 'serial_number', 'image', 'description', 'place_id', 'status'])]
 class InventoryItem extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use SoftDeletes, LogsActivity, HasFactory;
 
     protected function casts(): array
     {

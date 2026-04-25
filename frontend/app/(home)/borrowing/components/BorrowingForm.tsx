@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { InventoryItem, getInventoryItems } from '@/services/InventoryService';
 import { createBorrowing } from '@/services/BorrowingService';
 import { showSuccess, showError } from '@/lib/alert';
+import SearchableSelect from '@/components/ui/SearchableSelect';
+
 
 interface BorrowingFormProps {
     onClose: () => void;
@@ -41,7 +43,12 @@ export default function BorrowingForm({ onClose, onSuccess }: BorrowingFormProps
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!formData.inventory_item_id) {
+            showError("Tactical error: Asset selection required for circulation.");
+            return;
+        }
         try {
+
             setSubmitting(true);
             await createBorrowing(formData);
             showSuccess("System protocol updated: Asset circulation initiated.");
@@ -69,22 +76,21 @@ export default function BorrowingForm({ onClose, onSuccess }: BorrowingFormProps
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6">
                     <div className="space-y-4">
-                        <div className="space-y-1.5">
-                            <label className="text-[11px] font-black text-outline uppercase tracking-widest">Select Asset</label>
-                            <select
-                                value={formData.inventory_item_id}
-                                onChange={(e) => setFormData({ ...formData, inventory_item_id: e.target.value })}
-                                required
-                                className="w-full bg-surface-container-lowest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-all appearance-none cursor-pointer"
-                            >
-                                <option value="">Select an available item</option>
-                                {items.map(item => (
-                                    <option key={item.id} value={item.id}>
-                                        [{item.code}] {item.item_name} - (Available: {item.quantity})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+
+                        <SearchableSelect
+                            label="Select Asset"
+                            options={items.map(item => ({
+                                id: item.id,
+                                label: item.item_name,
+                                subLabel: `[${item.code}] Available: ${item.quantity}`,
+                                searchValue: `${item.item_name} ${item.code}`
+                            }))}
+                            value={formData.inventory_item_id}
+                            onChange={(val) => setFormData({ ...formData, inventory_item_id: val.toString() })}
+                            placeholder="Search and select an available item"
+                            required
+                        />
+
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
