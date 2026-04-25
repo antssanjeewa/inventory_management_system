@@ -8,6 +8,7 @@ use App\Models\InventoryItem;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\StoreBorrowingRequest;
 use App\Http\Requests\API\UpdateBorrowingRequest;
+use App\Http\Resources\BorrowingResource;
 use Illuminate\Support\Facades\DB;
 
 class BorrowingAPIController extends Controller
@@ -17,8 +18,8 @@ class BorrowingAPIController extends Controller
      */
     public function index()
     {
-        $borrowings = Borrowing::with('inventoryItem')->paginate();
-        return response()->apiSuccess($borrowings);
+        $borrowings = Borrowing::with('inventoryItem')->latest()->paginate(15);
+        return response()->apiSuccessPaginated(BorrowingResource::collection($borrowings));
     }
 
     /**
@@ -45,7 +46,9 @@ class BorrowingAPIController extends Controller
                 $item->save();
             }
 
-            return response()->apiSuccess($borrowing, 'Item borrowed successfully', 201);
+            $borrowing->logActivity('Item Borrowed', null, $borrowing->toArray());
+
+            return response()->apiSuccess(new BorrowingResource($borrowing), 'Item borrowed successfully', 201);
         });
     }
 
@@ -55,7 +58,7 @@ class BorrowingAPIController extends Controller
     public function show(Borrowing $borrowing)
     {
         $borrowing->load('inventoryItem');
-        return response()->apiSuccess($borrowing);
+        return response()->apiSuccess(new BorrowingResource($borrowing));
     }
 
     /**
@@ -66,6 +69,7 @@ class BorrowingAPIController extends Controller
         return DB::transaction(function () use ($request, $borrowing) {
             $oldStatus = $borrowing->status;
             $newStatus = $request->status;
+            $oldData = $borrowing->toArray();
 
             if ($oldStatus === 'Borrowed' && $newStatus === 'Returned') {
                 $item = $borrowing->inventoryItem;
@@ -80,7 +84,9 @@ class BorrowingAPIController extends Controller
 
             $borrowing->update($request->validated());
 
-            return response()->apiSuccess($borrowing, 'Borrowing status updated successfully');
+            $borrowing->logActivity('Borrowing Status Updated', $oldData, $borrowing->toArray());
+
+            return response()->apiSuccess(new BorrowingResource($borrowing), 'Borrowing status updated successfully');
         });
     }
 

@@ -244,7 +244,7 @@ export default function StoragePage() {
 
               <div className="px-6 py-3 border-t border-outline-variant/10 flex justify-between items-center bg-surface-container/5">
                 <span className="text-[10px] font-black text-outline uppercase tracking-widest">
-                  Showing {places.length} of {placesMeta.total} locations
+                  Showing {places.length} of {placesMeta?.total ?? 0} locations
                 </span>
                 <div className="flex gap-2">
                   <PageButton
