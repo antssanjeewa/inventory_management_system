@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ceyntics ERP — Frontend (Next.js App)
 
-## Getting Started
+This is the frontend application for the Ceyntics Inventory Management System, built with Next.js 15.
 
-First, run the development server:
+## 🛠️ Requirements
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js 20+
+- NPM / Yarn
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Environment Configuration**
+   The application expects the backend API to be running at `http://127.0.0.1:8000/api`. This can be configured in the API client library (`lib/api.ts`).
 
-## Learn More
+3. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+## 🏗️ Architecture
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **App Router**: Uses Next.js 15 App Router with Route Grouping (`(home)` vs `(root)`).
+- **Service Layer**: Decoupled API logic in `services/` directory.
+- **Middleware**: Server-side route protection and role-based redirects.
+- **Design System**: Atomic CSS with Tailwind CSS v4 and a Material-inspired dark theme.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🧭 Navigation
 
-## Deploy on Vercel
+- `/` - Login Page
+- `/dashboard` - Overview & Statistics
+- `/inventory` - Manage and Search Items
+- `/borrowing` - Record borrows and returns
+- `/storage` - Manage physical cupboards and places
+- `/users` - User Management (Admin Only)
+- `/activity-logs` - System Audit Trail (Admin Only)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Developed by **Ants Sanjeewa** · © 2026 Ceyntics Systems (Pvt) Ltd.
