@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('inventory-items', InventoryItemAPIController::class);
     Route::apiResource('borrowings', BorrowingAPIController::class);
+    Route::get('inventory-items/{inventoryItem}/borrowings', [BorrowingAPIController::class, 'byItem']);
 
     Route::apiResource('users', UsersAPIController::class)->middleware('role:admin');
     Route::get('activity-logs', [ActivityLogAPIController::class, 'index'])->middleware('role:admin');

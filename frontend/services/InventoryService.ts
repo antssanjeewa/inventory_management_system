@@ -42,14 +42,6 @@ export const getInventoryItems = async (filters: InventoryFilters = {}) => {
     };
 };
 
-export const deleteInventoryItem = async (id: number) => {
-    const res = await api.delete(`/inventory-items/${id}`);
-    if (!res.data.success) {
-        throw new Error(res.data.message);
-    }
-    return res.data;
-};
-
 export const getInventoryItem = async (id: number) => {
     const res = await api.get(`/inventory-items/${id}`);
     if (!res.data.success) {
@@ -75,4 +67,12 @@ export const updateInventoryItem = async (id: number, data: any) => {
         throw new Error(res.data.message);
     }
     return res.data.data;
+};
+
+export const deleteInventoryItem = async (id: number) => {
+    const res = await api.delete(`/inventory-items/${id}`);
+    if (!res.data.success) {
+        throw new Error(res.data.message);
+    }
+    return res.data;
 };

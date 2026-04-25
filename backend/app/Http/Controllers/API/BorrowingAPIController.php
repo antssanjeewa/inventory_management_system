@@ -99,6 +99,18 @@ class BorrowingAPIController extends Controller
     }
 
     /**
+     * Get borrowing history for a specific inventory item.
+     */
+    public function byItem(InventoryItem $inventoryItem)
+    {
+        $borrowings = Borrowing::where('inventory_item_id', $inventoryItem->id)
+            ->latest()
+            ->paginate(10);
+
+        return response()->apiSuccessPaginated(BorrowingResource::collection($borrowings));
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Borrowing $borrowing)

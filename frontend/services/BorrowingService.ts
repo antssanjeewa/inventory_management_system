@@ -42,3 +42,14 @@ export const createBorrowing = async (data: any) => {
     }
     return res.data;
 };
+
+export const getBorrowingsByItem = async (itemId: number, page: number = 1) => {
+    const res = await api.get(`/inventory-items/${itemId}/borrowings?page=${page}`);
+    if (!res.data.success) {
+        throw new Error(res.data.message);
+    }
+    return {
+        items: res.data.data as Borrowing[],
+        meta: res.data.meta
+    };
+};

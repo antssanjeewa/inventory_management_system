@@ -25,6 +25,7 @@ const menuSections = [
 ];
 
 import { useState, useEffect } from 'react';
+import { confirmAction } from '@/lib/alert';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -35,10 +36,10 @@ export default function Sidebar() {
     setIsAdmin(userResult?.role === 'admin');
   }, []);
 
-  const handleLogout = () => {
-    if (confirm("Are you sure you want to initialize logout protocol?")) {
-      auth.logout();
-    }
+  const handleLogout = async () => {
+    const isConfirmed = await confirmAction("Logout?", "Are you sure you want to logout?");
+    if (!isConfirmed) return;
+    auth.logout();
   };
 
   return (

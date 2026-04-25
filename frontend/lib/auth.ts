@@ -1,4 +1,5 @@
 import api from './api';
+import Cookies from 'js-cookie';
 
 export const auth = {
     login: async (credentials: object) => {
@@ -6,6 +7,8 @@ export const auth = {
         
         if (response.data.success) {
             localStorage.setItem('user', JSON.stringify(response.data.data));
+            Cookies.set('user_role', response.data.data.role, { expires: 7 });
+            Cookies.set('auth_token', response.data.data.access_token, { expires: 7 });
         }
         return response.data;
     },
