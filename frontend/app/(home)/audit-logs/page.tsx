@@ -9,9 +9,13 @@ import PageButton from '@/components/PageButton';
 import { TableLoading } from '@/components/TableLoading';
 import { TableEmpty } from '@/components/TableEmpty';
 import AuditDetailsDialog from './components/AuditDetailsDialog';
+import { auth } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 
 
 export default function AuditLogsPage() {
+
+    const router = useRouter();
     const [logs, setLogs] = useState<ActivityLog[]>([]);
     const [loading, setLoading] = useState(true);
     const [meta, setMeta] = useState<any>(null);
@@ -19,6 +23,12 @@ export default function AuditLogsPage() {
     const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+    useEffect(() => {
+        const user = auth.getCurrentUser();
+        if (user?.role !== 'admin') {
+            router.replace('/dashboard');
+        }
+    }, []);
 
     useEffect(() => {
         loadLogs();

@@ -30,7 +30,7 @@ class BorrowingAPIController extends Controller
         return DB::transaction(function () use ($request) {
             $item = InventoryItem::where('id', $request->inventory_item_id)
                 ->lockForUpdate()
-                ->first();
+                ->firstOrFail();
 
             if ($item->quantity < $request->quantity) {
                 return response()->apiError('Insufficient stock available.', 422);

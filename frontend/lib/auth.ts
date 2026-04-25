@@ -10,7 +10,10 @@ export const auth = {
         return response.data;
     },
 
-    logout: () => {
+    logout: async () => {
+        try {
+            await api.post('/logout');
+        } catch {}
         localStorage.removeItem('user');
         window.location.href = '/';
     },

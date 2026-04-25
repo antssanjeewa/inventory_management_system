@@ -67,7 +67,10 @@ export const createInventoryItem = async (data: any) => {
 };
 
 export const updateInventoryItem = async (id: number, data: any) => {
-    const res = await api.put(`/inventory-items/${id}`, data);
+    data.append('_method', 'PUT');
+    const res = await api.post(`/inventory-items/${id}`, data, {
+        headers: {'Content-Type': 'multipart/form-data'},
+    });
     if (!res.data.success) {
         throw new Error(res.data.message);
     }

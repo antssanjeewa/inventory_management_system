@@ -74,6 +74,11 @@ class InventoryItemAPIController extends Controller
     public function update(UpdateInventoryItemRequest $request, InventoryItem $inventoryItem)
     {
         return DB::transaction(function () use ($request, $inventoryItem) {
+
+            $inventoryItem = InventoryItem::where('id', $inventoryItem->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
             $data = $request->validated();
             $oldData = $inventoryItem->toArray();
 

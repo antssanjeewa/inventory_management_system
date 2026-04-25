@@ -8,14 +8,24 @@ import { TableEmpty } from '@/components/TableEmpty';
 import UserForm from './components/UserForm';
 import PageButton from '@/components/PageButton';
 import Breadcrumb from '@/components/Breadcrumb';
+import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/auth';
 
 export default function UsersPage() {
 
+  const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [meta, setMeta] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const user = auth.getCurrentUser();
+    if (user?.role !== 'admin') {
+      router.replace('/dashboard');
+    }
+  }, []);
 
   useEffect(() => {
     loadUsers();

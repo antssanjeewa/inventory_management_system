@@ -24,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (ValidationException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $e->getMessage(),
                     'errors' => $e->errors(),
                 ], 422);
@@ -34,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $e->getMessage(),
                     'errors' => [],
                 ], 401);
@@ -44,7 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             if ($request->is('api/*')) {
                 return response()->json([
-                    'status' => false,
+                    'success' => false,
                     'message' => $e->getMessage(),
                     'errors' => [],
                 ], 404);
