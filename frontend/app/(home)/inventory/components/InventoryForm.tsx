@@ -102,24 +102,8 @@ export default function InventoryForm({ initialData }: InventoryFormProps) {
             });
 
             if (initialData) {
-                // For updates, Laravel often prefers POST with _method=PUT for multipart forms
                 submitData.append('_method', 'PUT');
-                await createInventoryItem(submitData); // Re-using store endpoint but with _method trick if needed, or follow backend logic
-                // Actually, let's keep it clean. InventoryAPIController@update handles it.
-                // But multipart in PUT can be tricky. Let's send regular PUT if no image.
-                if (!formData.image) {
-                    await updateInventoryItem(initialData.id, formData);
-                } else {
-                    // Multipart update trick
-                    const updateData = new FormData();
-                    Object.keys(formData).forEach(key => {
-                        if (formData[key as keyof typeof formData]) {
-                            updateData.append(key, formData[key as keyof typeof formData]);
-                        }
-                    });
-                    updateData.append('_method', 'PUT');
-                    // await axiosInstance.post(`/inventory-items/${initialData.id}`, updateData);
-                }
+                await updateInventoryItem(initialData.id, submitData);
                 showSuccess("Item updated successfully");
             } else {
                 await createInventoryItem(submitData);

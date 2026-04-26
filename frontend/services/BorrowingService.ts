@@ -16,8 +16,12 @@ export interface Borrowing {
     status: 'Borrowed' | 'Returned' | 'Overdue';
 }
 
-export const getBorrowings = async (page: number = 1) => {
-    const res = await api.get(`/borrowings?page=${page}`);
+export const getBorrowings = async (page: number = 1, search: string = "") => {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    if (search) params.append('search', search);
+
+    const res = await api.get(`/borrowings?${params.toString()}`);
     if (!res.data.success) {
         throw new Error(res.data.message);
     }

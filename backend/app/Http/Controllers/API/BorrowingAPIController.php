@@ -10,15 +10,27 @@ use App\Http\Requests\API\StoreBorrowingRequest;
 use App\Http\Requests\API\UpdateBorrowingRequest;
 use App\Http\Resources\BorrowingResource;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class BorrowingAPIController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $borrowings = Borrowing::with('inventoryItem')->where('status', 'Borrowed')->latest()->paginate(15);
+        $query = Borrowing::with('inventoryItem')->where('status', 'Borrowed');
+
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where(DB::raw('LOWER(borrower_name)'), 'like', "%{$search}%")
+                    ->orWhere('contact', 'like', "%{$search}%")
+                    ->orWhereHas('inventoryItem', function ($qi) use ($search) {
+                        $qi->where(DB::raw('LOWER(item_name)'), 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $borrowings = $query->latest()->paginate(15);
         return response()->apiSuccessPaginated(BorrowingResource::collection($borrowings));
     }
 
