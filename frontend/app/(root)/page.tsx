@@ -60,7 +60,7 @@ export default function LoginPage() {
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">person</span>
                 <input
                   className="w-full bg-surface-container-low border border-outline-variant rounded-lg py-3 pl-11 pr-md font-body-md text-on-surface placeholder:text-outline/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all"
-                  placeholder="john.doe@ceyntics.com"
+                  placeholder="Enter Email Address"
                   type="text"
                   value={identity}
                   onChange={(e) => setIdentity(e.target.value)}
