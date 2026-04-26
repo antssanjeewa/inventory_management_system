@@ -18,7 +18,7 @@ class BorrowingAPIController extends Controller
      */
     public function index()
     {
-        $borrowings = Borrowing::with('inventoryItem')->latest()->paginate(15);
+        $borrowings = Borrowing::with('inventoryItem')->where('status', 'Borrowed')->latest()->paginate(15);
         return response()->apiSuccessPaginated(BorrowingResource::collection($borrowings));
     }
 

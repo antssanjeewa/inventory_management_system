@@ -157,3 +157,20 @@ a:not([href]) {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--color-outline);
 }
+
+/* Date Input Calendar Icon Styling */
+input[type="date"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.7) sepia(100%) saturate(1000%) hue-rotate(180deg) brightness(1.2);
+  transition: all 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(0.7) sepia(100%) saturate(1000%) hue-rotate(180deg) brightness(1.5);
+  transform: scale(1.1);
+}
+

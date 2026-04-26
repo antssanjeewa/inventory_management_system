@@ -6,13 +6,15 @@ interface Option {
     id: string | number;
     label: string;
     subLabel?: string;
-    searchValue: string; // Combined string for searching
+    searchValue: string;
 }
 
 interface SearchableSelectProps {
     options: Option[];
     value: string | number;
     onChange: (value: string | number) => void;
+    onSearchChange?: (search: string) => void;
+    loading?: boolean;
     placeholder?: string;
     label?: string;
     className?: string;
@@ -23,6 +25,8 @@ export default function SearchableSelect({
     options,
     value,
     onChange,
+    onSearchChange,
+    loading = false,
     placeholder = "Select an item",
     label,
     className = "",
@@ -32,11 +36,21 @@ export default function SearchableSelect({
     const [search, setSearch] = useState("");
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    const selectedOption = options.find(opt => opt.id === value);
+    const filteredOptions = onSearchChange
+        ? options
+        : options.filter(opt =>
+            opt.searchValue.toLowerCase().includes(search.toLowerCase())
+        );
 
-    const filteredOptions = options.filter(opt =>
-        opt.searchValue.toLowerCase().includes(search.toLowerCase())
-    );
+    const selectedOption = options.find(opt => opt.id == value);
+
+    const handleSearchChange = (val: string) => {
+        setSearch(val);
+        if (onSearchChange) {
+            onSearchChange(val);
+        }
+    };
+
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -61,7 +75,7 @@ export default function SearchableSelect({
                     {label}
                 </label>
             )}
-            
+
             <div
                 onClick={() => setIsOpen(!isOpen)}
                 className={`w-full bg-surface-container-lowest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-all cursor-pointer flex justify-between items-center ${isOpen ? 'border-primary ring-1 ring-primary/20' : ''}`}
@@ -83,23 +97,28 @@ export default function SearchableSelect({
                                 autoFocus
                                 type="text"
                                 value={search}
-                                onChange={(e) => setSearch(e.target.value)}
+                                onChange={(e) => handleSearchChange(e.target.value)}
                                 placeholder="Search inventory..."
                                 className="w-full bg-surface-container border border-outline-variant/50 rounded-lg pl-9 pr-4 py-2 text-sm outline-none focus:border-primary transition-all"
                             />
                         </div>
                     </div>
-                    
-                    <div className="max-h-[250px] overflow-y-auto custom-scrollbar">
+
+                    <div className="max-h-[250px] overflow-y-auto custom-scrollbar relative">
+                        {loading && (
+                            <div className="absolute inset-0 bg-surface-container-lowest/60 backdrop-blur-[1px] z-10 flex items-center justify-center">
+                                <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                            </div>
+                        )}
                         {filteredOptions.length > 0 ? (
                             filteredOptions.map((option) => (
                                 <button
                                     key={option.id}
                                     type="button"
                                     onClick={() => handleSelect(option)}
-                                    className={`w-full px-4 py-3 text-left text-sm hover:bg-primary/10 transition-colors flex flex-col gap-0.5 ${value === option.id ? 'bg-primary/5 border-l-2 border-primary' : ''}`}
+                                    className={`w-full px-4 py-3 text-left text-sm hover:bg-primary/10 transition-colors flex flex-col gap-0.5 ${value == option.id ? 'bg-primary/5 border-l-2 border-primary' : ''}`}
                                 >
-                                    <span className={`font-medium ${value === option.id ? 'text-primary' : 'text-on-surface'}`}>
+                                    <span className={`font-medium ${value == option.id ? 'text-primary' : 'text-on-surface'}`}>
                                         {option.label}
                                     </span>
                                     {option.subLabel && (
@@ -118,13 +137,13 @@ export default function SearchableSelect({
                     </div>
                 </div>
             )}
-            
+
             {/* Real input for form validation if needed */}
-            <input 
-                type="hidden" 
-                value={value} 
-                required={required} 
-                readOnly 
+            <input
+                type="hidden"
+                value={value}
+                required={required}
+                readOnly
             />
         </div>
     );

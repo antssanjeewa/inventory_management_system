@@ -30,9 +30,13 @@ export default function BorrowingForm({ onClose, onSuccess }: BorrowingFormProps
         loadItems();
     }, []);
 
-    const loadItems = async () => {
+    const loadItems = async (search = "") => {
         try {
-            const res = await getInventoryItems({ status: 'In-Store' });
+            setLoadingItems(true);
+            const res = await getInventoryItems({
+                status: 'In-Store',
+                search: search
+            });
             setItems(res.items);
         } catch (error) {
             console.error("Failed to load items", error);
@@ -41,6 +45,17 @@ export default function BorrowingForm({ onClose, onSuccess }: BorrowingFormProps
         }
     };
 
+    const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+
+    const onSearchChange = (val: string) => {
+        if (searchTimeout) clearTimeout(searchTimeout);
+        const timeout = setTimeout(() => {
+            loadItems(val);
+        }, 300);
+        setSearchTimeout(timeout);
+    };
+
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.inventory_item_id) {
@@ -48,7 +63,6 @@ export default function BorrowingForm({ onClose, onSuccess }: BorrowingFormProps
             return;
         }
         try {
-
             setSubmitting(true);
             await createBorrowing(formData);
             showSuccess("System protocol updated: Asset circulation initiated.");
@@ -76,7 +90,6 @@ export default function BorrowingForm({ onClose, onSuccess }: BorrowingFormProps
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6">
                     <div className="space-y-4">
-
                         <SearchableSelect
                             label="Select Asset"
                             options={items.map(item => ({
@@ -87,10 +100,11 @@ export default function BorrowingForm({ onClose, onSuccess }: BorrowingFormProps
                             }))}
                             value={formData.inventory_item_id}
                             onChange={(val) => setFormData({ ...formData, inventory_item_id: val.toString() })}
+                            onSearchChange={onSearchChange}
+                            loading={loadingItems}
                             placeholder="Search and select an available item"
                             required
                         />
-
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
