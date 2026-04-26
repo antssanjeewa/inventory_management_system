@@ -24,34 +24,115 @@ test('can fetch all borrowings', function () {
 
 test('can borrow an item', function () {
     $item = InventoryItem::factory()->create(['quantity' => 10]);
+    $borrowing = Borrowing::factory()->make();
 
     $response = $this->actingAs($this->user, 'sanctum')
         ->postJson('/api/borrowings', [
             'inventory_item_id' => $item->id,
-            'borrower_name' => 'John Doe',
-            'contact' => '123456789',
+            'borrower_name' => $borrowing->borrower_name,
+            'contact' => $borrowing->contact,
             'borrow_date' => now()->toDateString(),
             'expected_return_date' => now()->addDays(2)->toDateString(),
             'quantity' => 2,
         ]);
 
     $response->assertStatus(201)
-        ->assertJsonPath('success', true);
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', "Item borrowed successfully");
+
 
     $this->assertDatabaseHas('inventory_items', [
         'id' => $item->id,
         'quantity' => 8,
     ]);
+
+    $this->assertDatabaseHas('borrowings', [
+        'inventory_item_id' => $item->id,
+        'borrower_name' => $borrowing->borrower_name,
+        'contact' => $borrowing->contact,
+        'status' => 'Borrowed',
+        'quantity' => 2,
+        'borrow_date' => now()->toDateString(),
+    ]);
+
+    $this->assertDatabaseHas('activity_logs', [
+        'action' => 'Item Borrowed',
+        'user_id' => $this->user->id,
+        'entity_type' => Borrowing::class
+    ]);
+
+    $this->assertDatabaseHas('activity_logs', [
+        'action' => 'Quantity Changed',
+        'user_id' => $this->user->id,
+        'entity_type' => InventoryItem::class,
+        'entity_id' => $item->id
+    ]);
 });
 
-test('cannot borrow if insufficient stock', function () {
+test('can borrow an item with state change', function () {
     $item = InventoryItem::factory()->create(['quantity' => 1]);
+    $borrowing = Borrowing::factory()->make();
 
     $response = $this->actingAs($this->user, 'sanctum')
         ->postJson('/api/borrowings', [
             'inventory_item_id' => $item->id,
-            'borrower_name' => 'John Doe',
-            'contact' => '123456789',
+            'borrower_name' => $borrowing->borrower_name,
+            'contact' => $borrowing->contact,
+            'borrow_date' => now()->toDateString(),
+            'expected_return_date' => now()->addDays(2)->toDateString(),
+            'quantity' => 1,
+        ]);
+
+    $response->assertStatus(201)
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', "Item borrowed successfully");
+
+
+    $this->assertDatabaseHas('inventory_items', [
+        'id' => $item->id,
+        'quantity' => 0,
+        'status' => 'Borrowed'
+    ]);
+
+    $this->assertDatabaseHas('borrowings', [
+        'inventory_item_id' => $item->id,
+        'borrower_name' => $borrowing->borrower_name,
+        'contact' => $borrowing->contact,
+        'status' => 'Borrowed',
+        'quantity' => 1,
+        'borrow_date' => now()->toDateString(),
+    ]);
+
+    $this->assertDatabaseHas('activity_logs', [
+        'action' => 'Item Borrowed',
+        'user_id' => $this->user->id,
+        'entity_type' => Borrowing::class
+    ]);
+
+    $this->assertDatabaseHas('activity_logs', [
+        'action' => 'Status Changed',
+        'user_id' => $this->user->id,
+        'entity_type' => InventoryItem::class,
+        'entity_id' => $item->id
+    ]);
+
+    $this->assertDatabaseHas('activity_logs', [
+        'action' => 'Quantity Changed',
+        'user_id' => $this->user->id,
+        'entity_type' => InventoryItem::class,
+        'entity_id' => $item->id
+    ]);
+});
+
+test('cannot borrow if insufficient stock', function () {
+    $item = InventoryItem::factory()->create(['quantity' => 1]);
+    $borrowing = Borrowing::factory()->make();
+
+    $response = $this->actingAs($this->user, 'sanctum')
+        ->postJson('/api/borrowings', [
+            'inventory_item_id' => $item->id,
+            'borrower_name' => $borrowing->borrower_name,
+            'contact' => $borrowing->contact,
             'borrow_date' => now()->toDateString(),
             'expected_return_date' => now()->addDays(2)->toDateString(),
             'quantity' => 2,
@@ -63,7 +144,10 @@ test('cannot borrow if insufficient stock', function () {
 });
 
 test('can return a borrowed item', function () {
-    $item = InventoryItem::factory()->create(['quantity' => 5]);
+    $item = InventoryItem::factory()->create([
+        'quantity' => 0,
+        'status' => 'Borrowed'
+    ]);
     $borrowing = Borrowing::factory()->create([
         'inventory_item_id' => $item->id,
         'quantity' => 2,
@@ -72,23 +156,43 @@ test('can return a borrowed item', function () {
 
     $response = $this->actingAs($this->user, 'sanctum')
         ->putJson('/api/borrowings/' . $borrowing->id, [
-            'status' => 'Returned',
-            'inventory_item_id' => $item->id,
-            'borrower_name' => $borrowing->borrower_name,
-            'contact' => $borrowing->contact,
-            'borrow_date' => $borrowing->borrow_date,
+            'status' => 'Returned'
         ]);
 
-    $response->assertStatus(200);
+    $response->assertStatus(200)
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', "Borrowing status updated successfully");
+
 
     $this->assertDatabaseHas('inventory_items', [
         'id' => $item->id,
-        'quantity' => 7,
+        'quantity' => 2,
+        'status' => 'In-Store'
     ]);
 
     $this->assertDatabaseHas('borrowings', [
         'id' => $borrowing->id,
         'status' => 'Returned',
+    ]);
+
+    $this->assertDatabaseHas('activity_logs', [
+        'action' => 'Item Returned',
+        'user_id' => $this->user->id,
+        'entity_type' => Borrowing::class
+    ]);
+
+    $this->assertDatabaseHas('activity_logs', [
+        'action' => 'Status Changed',
+        'user_id' => $this->user->id,
+        'entity_type' => InventoryItem::class,
+        'entity_id' => $item->id
+    ]);
+
+    $this->assertDatabaseHas('activity_logs', [
+        'action' => 'Quantity Changed',
+        'user_id' => $this->user->id,
+        'entity_type' => InventoryItem::class,
+        'entity_id' => $item->id
     ]);
 });
 

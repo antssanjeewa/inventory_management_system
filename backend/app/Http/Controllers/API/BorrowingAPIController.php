@@ -31,6 +31,7 @@ class BorrowingAPIController extends Controller
             $item = InventoryItem::where('id', $request->inventory_item_id)
                 ->lockForUpdate()
                 ->firstOrFail();
+            $old_item = $item->toArray();
 
             if ($item->quantity < $request->quantity) {
                 return response()->apiError('Insufficient stock available.', [], 422);
@@ -46,9 +47,11 @@ class BorrowingAPIController extends Controller
             if ($item->quantity == 0) {
                 $item->status = ItemStatus::BORROWED;
                 $item->save();
+                $item->logActivity('Status Changed', $old_item, $item->toArray());
             }
 
             $borrowing->logActivity('Item Borrowed', null, $borrowing->toArray());
+            $item->logActivity('Quantity Changed', $old_item, $item->toArray());
 
             return response()->apiSuccess(new BorrowingResource($borrowing), 'Item borrowed successfully', 201);
         });
@@ -72,18 +75,22 @@ class BorrowingAPIController extends Controller
                 $item = InventoryItem::where('id', $borrowing->inventory_item_id)
                     ->lockForUpdate()
                     ->firstOrFail();
+                $old_item = $item->toArray();
 
                 $item->increment('quantity', $borrowing->quantity);
                 $item->refresh();
 
                 if ($item->status === ItemStatus::BORROWED) {
                     $item->update(['status' => ItemStatus::IN_STORE]);
+                    $item->logActivity('Status Changed', $old_item, $item->toArray());
                 }
+
+                $item->logActivity('Quantity Changed', $old_item, $item->toArray());
             }
 
             $borrowing->update($request->validated());
 
-            $borrowing->logActivity('Borrowing Status Updated', $oldData, $borrowing->toArray());
+            $borrowing->logActivity('Item Returned', $oldData, $borrowing->toArray());
 
             return response()->apiSuccess(new BorrowingResource($borrowing), 'Borrowing status updated successfully');
         });

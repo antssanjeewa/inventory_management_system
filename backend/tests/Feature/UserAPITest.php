@@ -26,17 +26,54 @@ test('non-admin cannot fetch users', function () {
 });
 
 test('admin can create a user', function () {
+    $user = User::factory()->make();
+
     $response = $this->actingAs($this->admin, 'sanctum')
         ->postJson('/api/users', [
-            'name' => 'New User',
-            'email' => 'newuser@example.com',
+            'name' => $user->name,
+            'email' => $user->email,
             'password' => 'password123',
             'password_confirmation' => 'password123',
-            'role' => 'staff',
+            'role' => $user->role,
         ]);
 
-    $response->assertStatus(201);
-    $this->assertDatabaseHas('users', ['email' => 'newuser@example.com']);
+    $response->assertStatus(201)
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', "User created successfully");
+
+
+    $this->assertDatabaseHas('users', [
+        'name' => $user->name,
+        'email' => $user->email
+    ]);
+
+    $this->assertDatabaseHas('activity_logs', [
+        'action' => 'User Created',
+        'user_id' => $this->admin->id,
+        'entity_type' => User::class
+    ]);
+});
+
+test('admin can update a user', function () {
+    $user = User::factory()->create();
+    $updatedName = "Update Name";
+
+    $response = $this->actingAs($this->admin, 'sanctum')
+        ->putJson('/api/users/' . $user->id, [
+            'name' => $updatedName,
+            'email' => $user->email,
+            'role' => $user->role,
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', "User updated successfully");
+
+    $this->assertDatabaseHas('users', [
+        'id' => $user->id,
+        'email' => $user->email,
+        'name' => $updatedName
+    ]);
 });
 
 test('admin can delete a user', function () {
@@ -45,7 +82,10 @@ test('admin can delete a user', function () {
     $response = $this->actingAs($this->admin, 'sanctum')
         ->deleteJson('/api/users/' . $userToDelete->id);
 
-    $response->assertStatus(200);
+    $response->assertStatus(200)
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', "User deleted successfully");
+
     $this->assertSoftDeleted('users', ['id' => $userToDelete->id]);
 });
 

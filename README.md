@@ -49,9 +49,5 @@ npm install
 npm run dev
 ```
 
-## 📄 Documentation
-
-- [Detailed Implementation Documentation](./IMPLEMENTATION.md)
-
 ---
 Developed by **Ants Sanjeewa** · © 2026 Ceyntics Systems (Pvt) Ltd.
