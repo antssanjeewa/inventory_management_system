@@ -20,12 +20,11 @@ class InventoryItemAPIController extends Controller
     {
         $query = InventoryItem::query()->with('place');
 
-        // Optional filtering
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = strtolower($request->search);
             $query->where(function ($q) use ($search) {
-                $q->where('item_name', 'like', "%{$search}%")
-                    ->orWhere('code', 'like', "%{$search}%");
+                $q->where(DB::raw('LOWER(item_name)'), 'like', "%{$search}%")
+                    ->orWhere(DB::raw('LOWER(code)'), 'like', "%{$search}%");
             });
         }
 

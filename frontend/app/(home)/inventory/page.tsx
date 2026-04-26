@@ -20,7 +20,7 @@ export default function InventoryPage() {
     const [filters, setFilters] = useState({
         search: "",
         status: "",
-        stored_place_id: "",
+        place_id: "",
         cupboard_id: "",
         page: 1
     });
@@ -28,7 +28,7 @@ export default function InventoryPage() {
     useEffect(() => {
         loadFilters();
         loadInventory();
-    }, [filters.page, filters.status, filters.stored_place_id]);
+    }, [filters.page, filters.status, filters.place_id]);
 
     const loadFilters = async () => {
         try {
@@ -65,7 +65,7 @@ export default function InventoryPage() {
         }
     };
 
-    const handleSearch = (e: React.FormEvent) => {
+    const handleSearch = (e: React.SubmitEvent) => {
         e.preventDefault();
         setFilters(f => ({ ...f, page: 1 }));
         loadInventory();
@@ -75,7 +75,6 @@ export default function InventoryPage() {
         setFilters(f => ({ ...f, [key]: value, page: 1 }));
         if (key === 'cupboard_id') {
             loadPlacesForCupboard(value);
-            setFilters(f => ({ ...f, cupboard_id: value, stored_place_id: "", page: 1 }));
         }
     };
 
@@ -144,8 +143,8 @@ export default function InventoryPage() {
                             ]}
                         />
                         <FilterSelect
-                            value={filters.stored_place_id}
-                            onChange={(e: any) => handleFilterChange('stored_place_id', e.target.value)}
+                            value={filters.place_id}
+                            onChange={(e: any) => handleFilterChange('place_id', e.target.value)}
                             disabled={!filters.cupboard_id}
                             options={[
                                 { label: "All Places", value: "" },

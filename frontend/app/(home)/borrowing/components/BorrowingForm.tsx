@@ -124,7 +124,7 @@ export default function BorrowingForm({ onClose, onSuccess }: BorrowingFormProps
                                     type="text"
                                     value={formData.contact}
                                     onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                                    placeholder="Phone or Email"
+                                    placeholder="Phone Number"
                                     required
                                     className="w-full bg-surface-container-lowest border border-outline-variant text-on-surface rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-all"
                                 />
